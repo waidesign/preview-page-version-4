@@ -17,9 +17,11 @@ import { CredibilityStrip } from './components/CredibilityStrip';
 import { FaqSection } from './components/FaqSection';
 import { StickyMobileCta } from './components/StickyMobileCta';
 import { SignupModal } from './components/SignupModal';
+import { PurchaseLeadModal } from './components/PurchaseLeadModal';
 import { SampleReportModal } from './components/SampleReportModal';
 import { ExitIntentOffer } from './components/ExitIntentOffer';
 import { PurchaseRail } from './components/PurchaseRail';
+import { Footer } from './components/Footer';
 
 import { FORD_FUSION_SAMPLE, JEEP_CHEROKEE_SAMPLE, FAQ_ITEMS } from './lib/mock-data';
 import { VehiclePreview } from './types';
@@ -47,10 +49,55 @@ export default function App() {
   // Preview Page Modals & States
   const [isSignupOpen, setIsSignupOpen] = useState<boolean>(false);
   const [authInitialMode, setAuthInitialMode] = useState<'signup' | 'signin'>('signup');
+  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState<boolean>(false);
+  const [selectedPurchase, setSelectedPurchase] = useState<{
+    packageType: 'report' | 'sticker' | 'bundle';
+    packageLabel: string;
+    price: number;
+  }>({
+    packageType: 'report',
+    packageLabel: 'Vehicle History Report',
+    price: 19.99,
+  });
   const [isSampleReportOpen, setIsSampleReportOpen] = useState<boolean>(false);
   const [isExitOfferOpen, setIsExitOfferOpen] = useState<boolean>(false);
 
   const purchaseRailRef = useRef<HTMLDivElement>(null);
+
+  // Handler for initiating a purchase modal flow
+  const handleOpenPurchase = (
+    packageType: 'report' | 'sticker' | 'bundle',
+    price?: number,
+    label?: string
+  ) => {
+    let resolvedPrice = price ?? 19.99;
+    let resolvedLabel = label ?? 'Vehicle History Report';
+    if (!price) {
+      if (packageType === 'sticker') {
+        resolvedPrice = 9.99;
+        resolvedLabel = 'Window Sticker';
+      } else if (packageType === 'bundle') {
+        resolvedPrice = 29.98;
+        resolvedLabel = 'Report + Sticker Bundle';
+      }
+    }
+    setSelectedPurchase({
+      packageType,
+      packageLabel: resolvedLabel,
+      price: resolvedPrice,
+    });
+    setIsPurchaseModalOpen(true);
+  };
+
+  // Handler when user submits purchase delivery lead
+  const handlePurchaseSubmit = (data: { email: string; phone?: string; packageType: string; price: number }) => {
+    setSavedEmail(data.email);
+    analytics.track('checkout_started', {
+      email: data.email,
+      packageType: data.packageType,
+      price: data.price,
+    });
+  };
 
   // Track Step 3 garage save shown
   useEffect(() => {
@@ -301,7 +348,7 @@ export default function App() {
           </div>
         ) : (
           /* REDIRECTED TO DESIGNED VEHICLE PREVIEW PAGE */
-          <div>
+          <div className="pb-20 sm:pb-24">
             {/* Context notification banner from Onboarding */}
             <div className="bg-[#E3ECF9] border-b border-[#013479]/20 py-2.5 px-4 text-xs sm:text-sm text-[#013479]">
               <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
@@ -333,6 +380,9 @@ export default function App() {
                 setAuthInitialMode('signup');
                 setIsSignupOpen(true);
               }}
+              onUnlockReport={() => {
+                handleOpenPurchase('report', 19.99, 'Vehicle History Report');
+              }}
             />
 
             {/* Desktop Layout Container: 2-col grid — InsightCards left, sticky PurchaseRail right */}
@@ -342,9 +392,13 @@ export default function App() {
                 <div className="order-2 lg:order-1 lg:col-span-8">
                   <InsightCardsSection
                     vehicle={vehicle}
+                    savedToGarage={Boolean(savedEmail) || Boolean(vehicle.savedToGarage)}
                     onOpenSignup={() => {
                       setAuthInitialMode('signup');
                       setIsSignupOpen(true);
+                    }}
+                    onSelectPurchase={(pkgType, price, label) => {
+                      handleOpenPurchase(pkgType, price, label);
                     }}
                     onOpenSampleReport={() => setIsSampleReportOpen(true)}
                   />
@@ -354,9 +408,8 @@ export default function App() {
                 <div ref={purchaseRailRef} className="order-1 lg:order-2 w-full lg:col-span-4 lg:sticky lg:top-20 lg:self-start">
                   <PurchaseRail
                     vehicle={vehicle}
-                    onSelectOption={(_opt) => {
-                      setAuthInitialMode('signup');
-                      setIsSignupOpen(true);
+                    onSelectOption={(optType, _qty, customPrice, label) => {
+                      handleOpenPurchase(optType, customPrice, label);
                     }}
                   />
                 </div>
@@ -387,6 +440,13 @@ export default function App() {
                   setAuthInitialMode('signup');
                   setIsSignupOpen(true);
                 }}
+                onSelectPurchase={(pkgType, price, label) => {
+                  handleOpenPurchase(pkgType, price, label);
+                }}
+                onSaveToGarage={() => {
+                  setAuthInitialMode('signup');
+                  setIsSignupOpen(true);
+                }}
               />
             )}
 
@@ -397,15 +457,17 @@ export default function App() {
               />
             </div>
 
+            {/* Footer */}
+            <Footer onOpenSampleReport={() => setIsSampleReportOpen(true)} />
+
             {/* Sticky Mobile CTA */}
             <StickyMobileCta
-              onSelectOption={(_opt) => {
-                setAuthInitialMode('signup');
-                setIsSignupOpen(true);
+              onSelectOption={(optType, price, label) => {
+                handleOpenPurchase(optType, price, label);
               }}
             />
 
-            {/* Signup / Login Modal */}
+            {/* 1. Save to Garage Modal */}
             <SignupModal
               isOpen={isSignupOpen}
               onClose={() => setIsSignupOpen(false)}
@@ -417,14 +479,26 @@ export default function App() {
               initialMode={authInitialMode}
             />
 
+            {/* 2. Purchase / Delivery Lead Modal (before redirecting to Checkout) */}
+            <PurchaseLeadModal
+              isOpen={isPurchaseModalOpen}
+              onClose={() => setIsPurchaseModalOpen(false)}
+              vehicle={vehicle}
+              packageType={selectedPurchase.packageType}
+              packageLabel={selectedPurchase.packageLabel}
+              price={selectedPurchase.price}
+              initialEmail={savedEmail}
+              onSubmit={handlePurchaseSubmit}
+            />
+
             {/* Sample Report Modal */}
             <SampleReportModal
               isOpen={isSampleReportOpen}
               onClose={() => setIsSampleReportOpen(false)}
               vehicle={vehicle}
-              onSelectPackage={(_pkg) => {
+              onSelectPackage={(pkg) => {
                 setIsSampleReportOpen(false);
-                setIsSignupOpen(true);
+                handleOpenPurchase(pkg);
               }}
             />
 
@@ -435,7 +509,7 @@ export default function App() {
               vehicle={vehicle}
               onClaimOffer={() => {
                 setIsExitOfferOpen(false);
-                setIsSignupOpen(true);
+                handleOpenPurchase('report', 16.99, 'Vehicle History Report (15% OFF)');
               }}
             />
           </div>

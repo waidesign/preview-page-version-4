@@ -22,6 +22,7 @@ export const Screen2Confirm: React.FC<Screen2ConfirmProps> = ({
     (vehicle.auctionImages && vehicle.auctionImages.length > 0 ? vehicle.auctionImages[0] : null);
 
   const hasAuctionPhoto = Boolean(auctionPhoto && !imageError);
+  const hasAuctionRecord = Boolean(vehicle.auctionListing || vehicle.auctionImages?.length || vehicle.auctionDetails);
 
   // Exactly 8 spec fields — hard cap, pick the 8 most identity-confirming fields
   const specFields = [
@@ -94,6 +95,59 @@ export const Screen2Confirm: React.FC<Screen2ConfirmProps> = ({
         transition={{ duration: 0.4, delay: 0.1 }}
         className="bg-[#FFFFFF] rounded-2xl border border-[#E6E9E4] p-5 sm:p-7 shadow-elevated mb-8"
       >
+        {/* Auction History Notification Box — only when vehicle has auction records */}
+        {hasAuctionRecord && (
+          <div
+            className="w-full mb-4 px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-xl bg-[#FEF2F2] border border-[#FCA5A5] shadow-2xs"
+          >
+            <div className="flex items-center">
+              <p className="text-sm sm:text-base font-bold text-[#991B1B] leading-tight">
+                This vehicle was previously listed for sale at auction.
+              </p>
+            </div>
+
+            {vehicle.auctionDetails && (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mt-2 pt-2 border-t border-[#FCA5A5]/40">
+                <div className="min-w-0">
+                  <div className="text-xs font-bold text-[#B91C1C]/80 uppercase tracking-wider">
+                    Auction Date
+                  </div>
+                  <div className="text-xs sm:text-sm font-mono font-semibold text-[#991B1B]">
+                    {vehicle.auctionDetails.auctionDate}
+                  </div>
+                </div>
+
+                <div className="min-w-0">
+                  <div className="text-xs font-bold text-[#B91C1C]/80 uppercase tracking-wider">
+                    Location
+                  </div>
+                  <div className="text-xs sm:text-sm font-mono font-bold text-[#991B1B] blur-[4px] select-none">
+                    {vehicle.auctionDetails.location || 'Elkton (MD)'}
+                  </div>
+                </div>
+
+                <div className="min-w-0">
+                  <div className="text-xs font-bold text-[#B91C1C]/80 uppercase tracking-wider">
+                    Exact Odometer
+                  </div>
+                  <div className="text-xs sm:text-sm font-mono font-bold text-[#991B1B] blur-[4px] select-none">
+                    {vehicle.auctionDetails.odometer || '146,032 mi'}
+                  </div>
+                </div>
+
+                <div className="min-w-0">
+                  <div className="text-xs font-bold text-[#B91C1C]/80 uppercase tracking-wider">
+                    Primary Damage
+                  </div>
+                  <div className="text-xs sm:text-sm font-mono font-bold text-[#991B1B] blur-[4px] select-none">
+                    {vehicle.auctionDetails.primaryDamage || 'Normal wear / tear'}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         <div className={`grid grid-cols-1 ${hasAuctionPhoto ? 'lg:grid-cols-12' : ''} gap-6 items-start`}>
           {/* Conditional Auction Image (Only if auction record exists) */}
           {hasAuctionPhoto && auctionPhoto && (
@@ -116,9 +170,11 @@ export const Screen2Confirm: React.FC<Screen2ConfirmProps> = ({
 
           {/* Exactly 8 Specification Data Points */}
           <div className={hasAuctionPhoto ? 'lg:col-span-7' : 'w-full'}>
-              <span className="text-xs font-heading font-bold text-[#17211D] uppercase tracking-wider">
-                Confirmed Factory Specifications
+            <div className="mb-3">
+              <span className="text-sm sm:text-base font-heading font-bold text-[#17211D] tracking-tight">
+                Vehicle Specifications
               </span>
+            </div>
 
             <div className={`grid grid-cols-2 ${hasAuctionPhoto ? 'sm:grid-cols-2' : 'sm:grid-cols-4'} gap-3`}>
               {specFields.map((spec) => (

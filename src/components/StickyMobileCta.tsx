@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { PRICING } from '../lib/mock-data';
 
 interface StickyMobileCtaProps {
-  onSelectOption: (optionType: 'report' | 'sticker' | 'bundle') => void;
+  onSelectOption: (optionType: 'report' | 'sticker' | 'bundle', price?: number, label?: string) => void;
 }
 
 export const StickyMobileCta: React.FC<StickyMobileCtaProps> = ({
@@ -33,14 +33,14 @@ export const StickyMobileCta: React.FC<StickyMobileCtaProps> = ({
     >
       <div className="flex items-center gap-2 max-w-md mx-auto">
         <button
-          onClick={() => onSelectOption('report')}
+          onClick={() => onSelectOption('report', 19.99, 'Vehicle History Report')}
           className="flex-1 bg-[#013479] hover:bg-[#024EB6] text-white font-bold text-sm px-3 py-2.5 rounded-xl border border-[#013479] shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-1 active:opacity-90"
         >
           <span>Get Report — {PRICING.HISTORY_REPORT.price}</span>
         </button>
 
         <button
-          onClick={() => onSelectOption('bundle')}
+          onClick={() => onSelectOption('bundle', 29.98, 'Report + Sticker Bundle')}
           className="flex-1 sm:flex-none bg-[#FFD700] hover:bg-[#ECC100] text-[#17211D] font-bold text-sm px-3 py-2.5 rounded-xl border border-[#FFD700] shadow-sm transition-all cursor-pointer flex items-center justify-center gap-1 shrink-0 active:opacity-90"
         >
           <span>Bundle — {PRICING.BUNDLE.price}</span>

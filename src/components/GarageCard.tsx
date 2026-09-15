@@ -9,12 +9,14 @@ interface GarageCardProps {
   vehicle: VehiclePreview;
   savedToGarage?: boolean;
   onSaveToGarage: () => void;
+  onUnlockReport?: () => void;
 }
 
 export const GarageCard: React.FC<GarageCardProps> = ({
   vehicle,
   savedToGarage = false,
   onSaveToGarage,
+  onUnlockReport,
 }) => {
   const [imageError, setImageError] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState(0);
@@ -115,7 +117,7 @@ export const GarageCard: React.FC<GarageCardProps> = ({
         {/* Auction History Notification Box — spans full width above both columns, only when we have auction/sales-history records */}
         {hasAuctionRecord && (
           <div
-            onClick={onSaveToGarage}
+            onClick={onUnlockReport || onSaveToGarage}
             className="w-full mb-4 sm:mb-6 p-3.5 sm:p-4 rounded-xl bg-[#FEF2F2] border border-[#FCA5A5] cursor-pointer hover:bg-[#FEE2E2] transition-all group shadow-2xs"
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -124,10 +126,20 @@ export const GarageCard: React.FC<GarageCardProps> = ({
                   This vehicle was previously listed for sale at auction.
                 </p>
                 <p className="text-sm font-medium text-[#B91C1C] leading-snug mt-0.5">
-                  Unlock full auction record & 10+ high-res photos
+                  Unlock full auction record &amp; 10+ high-res photos
                 </p>
               </div>
-              <div className="flex items-center justify-center gap-1.5 bg-[#013479] hover:bg-[#024EB6] text-white border border-[#013479] px-3.5 py-2.5 rounded-xl text-sm font-bold shadow-2xs transition-all w-full sm:w-auto shrink-0">
+              <div
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onUnlockReport) {
+                    onUnlockReport();
+                  } else {
+                    onSaveToGarage();
+                  }
+                }}
+                className="flex items-center justify-center gap-1.5 bg-[#013479] hover:bg-[#024EB6] text-white border border-[#013479] px-3.5 py-2.5 rounded-xl text-sm font-bold shadow-2xs transition-all w-full sm:w-auto shrink-0 cursor-pointer"
+              >
                 <span>Unlock Full Report — $19.99</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform shrink-0" />
               </div>
@@ -287,21 +299,14 @@ export const GarageCard: React.FC<GarageCardProps> = ({
                 transition={{ duration: 0.3, delay: 0.35 }}
                 className="flex items-center gap-4 p-4 rounded-xl border border-[#E6E9E4] bg-[#FAFAF7] shadow-resting"
               >
-                {/* Thumbnail – vehicle photo as a mini-card preview */}
+                {/* Thumbnail – members-area preview image */}
                 <div className="hidden sm:flex shrink-0 w-[88px] h-[60px] rounded-lg overflow-hidden border border-[#E6E9E4] bg-[#FFFFFF] items-center justify-center shadow-2xs relative">
-                  {displayImage && !imageError ? (
-                    <img
-                      src={displayImage}
-                      alt={vehicle.fullName}
-                      className="w-full h-full object-cover"
-                      referrerPolicy="no-referrer"
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center justify-center w-full h-full">
-                      <ShieldCheck className="w-5 h-5 text-[#013479]" />
-                      <span className="text-[10px] font-mono text-[#8A968F] mt-0.5">My Garage</span>
-                    </div>
-                  )}
+                  <img
+                    src="/images/members-area.webp"
+                    alt="My Garage Members Area"
+                    className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
                   {/* Tiny overlay label */}
                   <div className="absolute bottom-0 left-0 right-0 bg-[#17211D]/70 text-white text-[9px] font-mono font-bold text-center py-0.5 tracking-wider">
                     MY GARAGE
@@ -326,7 +331,7 @@ export const GarageCard: React.FC<GarageCardProps> = ({
                     onClick={onSaveToGarage}
                     className="mt-2 text-sm font-bold text-[#FFFFFF] bg-[#013479] hover:bg-[#024EB6] border border-[#013479] px-3.5 py-1.5 rounded-xl transition-all cursor-pointer shadow-2xs active:opacity-90 inline-flex items-center justify-center"
                   >
-                    Sign up free
+                    Save to Garage
                   </button>
 
                   <p className="text-xs text-[#8A968F] mt-1.5 font-medium">

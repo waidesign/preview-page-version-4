@@ -23,6 +23,7 @@ import {
 import { VehiclePreview } from '../types';
 import { PRICING } from '../lib/mock-data';
 import { LockedRecordRow } from './LockedRecordTeaser';
+import { EstimatedMarketValueSection } from './EstimatedMarketValueSection';
 
 const WHAT_WE_CHECK_FOR = [
   'Ownership History', 'Odometer Readings', 'Title Information', 'Accident History',
@@ -32,13 +33,17 @@ const WHAT_WE_CHECK_FOR = [
 
 interface InsightCardsSectionProps {
   vehicle: VehiclePreview;
+  savedToGarage?: boolean;
   onOpenSignup: () => void;
+  onSelectPurchase: (packageType: 'report' | 'sticker' | 'bundle', price: number, label: string) => void;
   onOpenSampleReport?: () => void;
 }
 
 export const InsightCardsSection: React.FC<InsightCardsSectionProps> = ({
   vehicle,
+  savedToGarage = false,
   onOpenSignup,
+  onSelectPurchase,
   onOpenSampleReport,
 }) => {
   const [showChecklist, setShowChecklist] = useState(false);
@@ -256,7 +261,7 @@ export const InsightCardsSection: React.FC<InsightCardsSectionProps> = ({
             </div>            {/* CTA Buttons */}
             <div className="relative flex flex-col sm:flex-row items-center gap-3 pt-4 border-t border-[#E6E9E4]">
               <button
-                onClick={onOpenSignup}
+                onClick={() => onSelectPurchase('report', 19.99, 'Vehicle History Report')}
                 className="w-full sm:w-auto flex-1 bg-[#013479] hover:bg-[#024EB6] text-white font-bold text-sm py-3 px-4 rounded-xl border border-[#013479] shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-2 group/btn active:opacity-90 whitespace-nowrap"
               >
                 <span>Get Vehicle History Report — {PRICING.HISTORY_REPORT.price}</span>
@@ -306,7 +311,7 @@ export const InsightCardsSection: React.FC<InsightCardsSectionProps> = ({
                     sublabel={pt.sub}
                     icon={pt.icon}
                     recordCountText="Unlock"
-                    onClick={onOpenSignup}
+                    onClick={() => onSelectPurchase('sticker', 9.99, 'Window Sticker')}
                   />
                 ))}
               </div>
@@ -315,7 +320,7 @@ export const InsightCardsSection: React.FC<InsightCardsSectionProps> = ({
             {/* CTA Buttons */}
             <div className="relative flex flex-col sm:flex-row items-center gap-3 pt-4 border-t border-[#E6E9E4]">
               <button
-                onClick={onOpenSignup}
+                onClick={() => onSelectPurchase('sticker', 9.99, 'Window Sticker')}
                 className="w-full sm:w-auto flex-1 bg-[#FFD700] hover:bg-[#ECC100] text-[#17211D] font-bold text-sm py-3 px-4 rounded-xl border border-[#FFD700] shadow-sm transition-all cursor-pointer flex items-center justify-center gap-2 group/btn active:opacity-90 whitespace-nowrap"
               >
                 <span>Get Sticker — {PRICING.WINDOW_STICKER.price}</span>
@@ -351,7 +356,7 @@ export const InsightCardsSection: React.FC<InsightCardsSectionProps> = ({
           </div>
 
           <button
-            onClick={onOpenSignup}
+            onClick={() => onSelectPurchase('bundle', 29.98, 'Report + Sticker Bundle')}
             className="w-full sm:w-auto bg-[#FFD700] hover:bg-[#ECC100] text-[#17211D] font-heading font-bold text-sm px-5 py-3 rounded-xl border border-[#FFD700] transition-all cursor-pointer whitespace-nowrap shadow-sm flex items-center justify-center gap-2 shrink-0 active:opacity-90"
           >
             <span>Get Bundle — {PRICING.BUNDLE.price}</span>
@@ -359,6 +364,12 @@ export const InsightCardsSection: React.FC<InsightCardsSectionProps> = ({
           </button>
         </div>
 
+        {/* Estimated Market Value Section */}
+        <EstimatedMarketValueSection
+          vehicle={vehicle}
+          savedToGarage={savedToGarage}
+          onTrackValueInGarage={onOpenSignup}
+        />
 
       </div>
     </section>

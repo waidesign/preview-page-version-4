@@ -98,12 +98,12 @@ export const Header: React.FC<HeaderProps> = ({
             Log in
           </button>
 
-          {/* Sign up free button */}
+          {/* Sign up button */}
           <button
             onClick={onOpenSignup}
             className="text-sm font-bold text-[#FFFFFF] bg-[#013479] hover:bg-[#024EB6] border border-[#013479] px-3.5 py-1.5 rounded-xl transition-all cursor-pointer shadow-2xs active:opacity-90"
           >
-            Sign up free
+            Sign up
           </button>
         </div>
 
@@ -156,7 +156,7 @@ export const Header: React.FC<HeaderProps> = ({
                 }}
                 className="w-full text-sm font-bold text-[#FFFFFF] bg-[#013479] hover:bg-[#024EB6] border border-[#013479] px-4 py-2.5 rounded-xl transition-all cursor-pointer shadow-2xs active:opacity-90"
               >
-                Sign up free
+                Sign up
               </button>
               <button
                 onClick={() => {

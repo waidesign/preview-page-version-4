@@ -116,11 +116,6 @@ export const Screen1Intent: React.FC<Screen1IntentProps> = ({
         })}
       </div>
 
-      <div className="mt-8 text-center">
-        <span className="text-xs text-[#8A968F] font-medium">
-          Single tap advances automatically • No account required to proceed
-        </span>
-      </div>
     </div>
   );
 };

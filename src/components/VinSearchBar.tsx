@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Search, Car, Hash, ShieldCheck, ChevronDown } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Search, ChevronDown, Check } from 'lucide-react';
 
 interface VinSearchBarProps {
   onSearch: (query: string, searchType: 'vin' | 'plate', state?: string) => void;
@@ -10,6 +10,19 @@ export const VinSearchBar: React.FC<VinSearchBarProps> = ({ onSearch, isLoading 
   const [searchType, setSearchType] = useState<'vin' | 'plate'>('vin');
   const [query, setQuery] = useState('');
   const [stateCode, setStateCode] = useState('CA');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,32 +41,70 @@ export const VinSearchBar: React.FC<VinSearchBarProps> = ({ onSearch, isLoading 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-xl">
       <div className="bg-[#FFFFFF] p-1.5 rounded-xl border border-[#E6E9E4] shadow-resting flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5">
-        {/* Type Toggle */}
-        <div className="flex bg-[#FAFAF7] p-1 rounded-lg border border-[#E6E9E4] shrink-0">
+        {/* Search Mode Dropdown */}
+        <div ref={dropdownRef} className="relative shrink-0">
           <button
             type="button"
-            onClick={() => setSearchType('vin')}
-            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all cursor-pointer flex items-center gap-1.5 ${
-              searchType === 'vin'
-                ? 'bg-[#FFFFFF] text-[#013479] shadow-sm font-semibold border border-[#E6E9E4]'
-                : 'text-[#4B5A54] hover:text-[#17211D]'
-            }`}
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            aria-haspopup="listbox"
+            aria-expanded={isDropdownOpen}
+            className="w-full sm:w-auto h-9 px-3 bg-[#FAFAF7] hover:bg-[#FFFFFF] text-[#17211D] border border-[#E6E9E4] hover:border-[#013479]/40 rounded-lg text-xs sm:text-sm font-semibold transition-all cursor-pointer flex items-center justify-between sm:justify-start gap-2 shadow-2xs active:bg-[#EAEFE8]"
           >
-            <Hash className="w-3.5 h-3.5" />
-            VIN
+            <span className="whitespace-nowrap">
+              {searchType === 'vin' ? 'By VIN' : 'By US License Plate'}
+            </span>
+            <ChevronDown
+              className={`w-3.5 h-3.5 text-[#4B5A54] transition-transform duration-200 shrink-0 ${
+                isDropdownOpen ? 'rotate-180 text-[#013479]' : ''
+              }`}
+            />
           </button>
-          <button
-            type="button"
-            onClick={() => setSearchType('plate')}
-            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all cursor-pointer flex items-center gap-1.5 ${
-              searchType === 'plate'
-                ? 'bg-[#FFFFFF] text-[#013479] shadow-sm font-semibold border border-[#E6E9E4]'
-                : 'text-[#4B5A54] hover:text-[#17211D]'
-            }`}
-          >
-            <Car className="w-3.5 h-3.5" />
-            License Plate
-          </button>
+
+          {/* Dropdown Options Menu */}
+          {isDropdownOpen && (
+            <div 
+              role="listbox" 
+              className="absolute left-0 top-full mt-1.5 w-48 bg-[#FFFFFF] rounded-xl border border-[#E6E9E4] shadow-elevated py-1 z-50 animate-fade-in"
+            >
+              <button
+                type="button"
+                role="option"
+                aria-selected={searchType === 'vin'}
+                onClick={() => {
+                  setSearchType('vin');
+                  setQuery('');
+                  setIsDropdownOpen(false);
+                }}
+                className={`w-full px-3 py-2 text-xs sm:text-sm text-left flex items-center justify-between transition-colors cursor-pointer ${
+                  searchType === 'vin'
+                    ? 'bg-[#E3ECF9]/60 text-[#013479] font-bold'
+                    : 'text-[#4B5A54] hover:bg-[#FAFAF7] hover:text-[#17211D]'
+                }`}
+              >
+                <span>By VIN</span>
+                {searchType === 'vin' && <Check className="w-3.5 h-3.5 text-[#013479]" />}
+              </button>
+
+              <button
+                type="button"
+                role="option"
+                aria-selected={searchType === 'plate'}
+                onClick={() => {
+                  setSearchType('plate');
+                  setQuery('');
+                  setIsDropdownOpen(false);
+                }}
+                className={`w-full px-3 py-2 text-xs sm:text-sm text-left flex items-center justify-between transition-colors cursor-pointer ${
+                  searchType === 'plate'
+                    ? 'bg-[#E3ECF9]/60 text-[#013479] font-bold'
+                    : 'text-[#4B5A54] hover:bg-[#FAFAF7] hover:text-[#17211D]'
+                }`}
+              >
+                <span>By US License Plate</span>
+                {searchType === 'plate' && <Check className="w-3.5 h-3.5 text-[#013479]" />}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Input area */}
@@ -81,7 +132,7 @@ export const VinSearchBar: React.FC<VinSearchBarProps> = ({ onSearch, isLoading 
             onChange={(e) => setQuery(e.target.value.toUpperCase())}
             placeholder={
               searchType === 'vin'
-                ? 'Enter 17-digit VIN...'
+                ? 'Enter VIN'
                 : 'Enter Plate Number...'
             }
             maxLength={searchType === 'vin' ? 17 : 10}

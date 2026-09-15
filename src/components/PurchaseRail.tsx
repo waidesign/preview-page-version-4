@@ -5,7 +5,7 @@ import { PRICING } from '../lib/mock-data';
 
 interface PurchaseRailProps {
   vehicle: VehiclePreview;
-  onSelectOption: (optionType: 'report' | 'sticker' | 'bundle', quantity?: number) => void;
+  onSelectOption: (optionType: 'report' | 'sticker' | 'bundle', quantity?: number, customPrice?: number, label?: string) => void;
 }
 
 export const PurchaseRail: React.FC<PurchaseRailProps> = ({
@@ -70,12 +70,13 @@ export const PurchaseRail: React.FC<PurchaseRailProps> = ({
   };
 
   const handleCtaClick = () => {
+    const label = getCtaText();
     if (reportQty > 0 && stickerQty > 0) {
-      onSelectOption('bundle', reportQty);
+      onSelectOption('bundle', reportQty, totalPrice, label);
     } else if (stickerQty > 0) {
-      onSelectOption('sticker', stickerQty);
+      onSelectOption('sticker', stickerQty, totalPrice, label);
     } else {
-      onSelectOption('report', reportQty);
+      onSelectOption('report', reportQty, totalPrice, label);
     }
   };
 

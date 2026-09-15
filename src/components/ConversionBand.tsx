@@ -4,15 +4,33 @@ import { VehiclePreview } from '../types';
 interface ConversionBandProps {
   vehicle: VehiclePreview;
   onOpenSignup: () => void;
+  onSelectPurchase?: (packageType: 'report' | 'sticker' | 'bundle', price: number, label: string) => void;
   onSaveToGarage?: () => void;
 }
 
 export const ConversionBand: React.FC<ConversionBandProps> = ({
   vehicle,
   onOpenSignup,
+  onSelectPurchase,
   onSaveToGarage,
 }) => {
   const handleSaveClick = onSaveToGarage || onOpenSignup;
+
+  const handlePurchaseReport = () => {
+    if (onSelectPurchase) {
+      onSelectPurchase('report', 19.99, 'Vehicle History Report');
+    } else {
+      onOpenSignup();
+    }
+  };
+
+  const handlePurchaseBundle = () => {
+    if (onSelectPurchase) {
+      onSelectPurchase('bundle', 29.98, 'Report + Sticker Bundle');
+    } else {
+      onOpenSignup();
+    }
+  };
 
   return (
     <section className="w-full bg-[#E3ECF9] border-y border-[#024EB6]/20 py-16 md:py-24 px-4 sm:px-6 lg:px-8">
@@ -28,13 +46,13 @@ export const ConversionBand: React.FC<ConversionBandProps> = ({
         {/* Primary Conversion Action Group */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <button
-            onClick={onOpenSignup}
+            onClick={handlePurchaseReport}
             className="w-full sm:w-auto bg-[#013479] hover:bg-[#024EB6] text-white font-bold text-base px-8 py-3.5 rounded-xl border border-[#013479] shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-2.5 group active:opacity-90"
           >
             <span>Get History Report — $19.99</span>
           </button>
           <button
-            onClick={onOpenSignup}
+            onClick={handlePurchaseBundle}
             className="w-full sm:w-auto bg-[#FFD700] hover:bg-[#ECC100] text-[#17211D] font-bold text-base px-8 py-3.5 rounded-xl border border-[#FFD700] shadow-sm transition-all cursor-pointer flex items-center justify-center gap-2 group active:opacity-90"
           >
             <span>Get Bundle — $29.98</span>
