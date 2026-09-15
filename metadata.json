@@ -1,0 +1,6 @@
+{
+  "name": "VIN Decoder Preview",
+  "description": "Garage-first VIN and License Plate decoder preview page with instant vehicle details and seamless account creation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
